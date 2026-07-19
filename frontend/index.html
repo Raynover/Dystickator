@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Die Cut Stickers | Sticker Mule Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        /* Fixed, full-screen background layout using background.png */
+        body {
+            background-image: url('./background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #f9fafb; /* fall-back color */
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-6 flex justify-end items-start max-w-7xl mx-auto">
+
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg p-5 space-y-4">
+        
+        <div>
+            <h3 class="text-sm font-extrabold text-gray-900 mb-2">Sticker Size</h3>
+            
+            <div class="grid grid-cols-2 gap-1.5" id="size-preset-container">
+                <button onclick="selectSize(25, 25, this)" class="preset-btn py-2 px-4 border-2 border-orange-500 bg-orange-50/30 text-orange-600 rounded-lg text-xs font-semibold text-center transition">
+                    25mm × 25mm
+                </button>
+                <button onclick="selectSize(50, 50, this)" class="preset-btn py-2 px-4 border border-gray-200 text-gray-700 rounded-lg text-xs font-semibold text-center hover:border-gray-300 transition">
+                    50mm × 50mm
+                </button>
+                <button onclick="selectSize(75, 75, this)" class="preset-btn py-2 px-4 border border-gray-200 text-gray-700 rounded-lg text-xs font-semibold text-center hover:border-gray-300 transition">
+                    75mm × 75mm
+                </button>
+                <button onclick="selectSize(100, 100, this)" class="preset-btn py-2 px-4 border border-gray-200 text-gray-700 rounded-lg text-xs font-semibold text-center hover:border-gray-300 transition">
+                    100mm × 100mm
+                </button>
+                <button onclick="selectCustom(this)" class="preset-btn col-span-2 py-2 px-4 border border-gray-200 text-gray-700 rounded-lg text-xs font-semibold text-center hover:border-gray-300 transition">
+                    Custom size
+                </button>
+            </div>
+
+            <div id="custom-inputs-div" class="hidden mt-2.5 space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <input type="number" id="custom-width" placeholder="Width (mm)" class="w-full border border-gray-200 focus:border-orange-500 rounded-lg p-2 text-xs outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    <span class="text-gray-400 font-bold text-xs">×</span>
+                    <input type="number" id="custom-height" placeholder="Height (mm)" class="w-full border border-gray-200 focus:border-orange-500 rounded-lg p-2 text-xs outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                </div>
+                <div id="size-error" class="text-[10px] text-red-500 font-semibold hidden"></div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-sm font-extrabold text-gray-900 mb-2">Select Quantity</h3>
+            
+            <div class="border border-gray-200 rounded-xl overflow-hidden custom-scrollbar">
+                <table class="min-w-full divide-y divide-gray-100 text-xs">
+                    <thead class="bg-gray-50 text-gray-500 font-bold">
+                        <tr>
+                            <th class="px-3.5 py-2 text-left">Quantity</th>
+                            <th class="px-3.5 py-2 text-right">Price</th>
+                            <th class="px-3.5 py-2 text-right">Discount</th>
+                            <th class="px-3.5 py-2 text-right">Item</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pricing-rows" class="divide-y divide-gray-100">
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="50" onclick="selectRow(50, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">50</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="100" onclick="selectRow(100, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">100</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="200" onclick="selectRow(200, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">200</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="300" onclick="selectRow(300, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">300</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="500" onclick="selectRow(500, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">500</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="1000" onclick="selectRow(1000, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">1000</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="2000" onclick="selectRow(2000, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">2000</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr class="qty-row cursor-pointer transition-all duration-150" data-qty="3000" onclick="selectRow(3000, false)">
+                            <td class="px-3.5 py-1.5 text-gray-900 font-bold">3000</td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                        <tr id="custom-qty-row" class="qty-row transition-all duration-150 cursor-pointer" onclick="selectRow(null, true)">
+                            <td class="px-3.5 py-1 flex flex-col gap-0.5">
+                                <input type="text" id="custom-row-qty-input" placeholder="Custom" 
+                                       class="w-20 border border-gray-200 rounded px-1.5 py-0.5 text-left font-bold outline-none transition cursor-pointer text-gray-400 bg-white">
+                                <span id="qty-error" class="text-[9px] text-red-500 font-semibold hidden"></span>
+                            </td>
+                            <td class="px-3.5 py-1.5 text-right font-bold text-val-price"></td>
+                            <td class="px-3.5 py-1.5 text-right text-green-600 font-semibold text-val-discount"></td>
+                            <td class="px-3.5 py-1.5 text-right text-gray-500 text-val-each"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-3 flex justify-between items-end">
+            <span class="text-base font-extrabold text-gray-900">Total sum</span>
+            <span id="final-sum" class="text-2xl font-black text-gray-900">€0</span>
+        </div>
+
+        <div class="space-y-2">
+            <button id="continue-btn" onclick="goToUploadPage()" class="w-full py-3.5 bg-[#ff5a00] hover:bg-[#e04f00] active:scale-[0.98] text-white font-extrabold rounded-lg text-sm shadow-sm transition-all duration-150">
+                Continue
+            </button>
+            <div id="limit-error-msg" class="text-xs text-red-500 font-semibold text-center hidden">
+                ⚠ Your order exceeds the online limit. Contact us.
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // State Management
+        let selectedWidth = 25;
+        let selectedHeight = 25;
+        let isCustomMode = false;
+        let selectedRowQuantity = 50; 
+        let customQtyValue = null;
+        let isNinthRowSelected = false;
+
+        // Cache API Data globally
+        let latestCalculatedData = null;
+
+        // Elements
+        const customInputsDiv = document.getElementById('custom-inputs-div');
+        const customWidthInput = document.getElementById('custom-width');
+        const customHeightInput = document.getElementById('custom-height');
+        const sizeError = document.getElementById('size-error');
+        const finalSumDisplay = document.getElementById('final-sum');
+        const customQtyInput = document.getElementById('custom-row-qty-input');
+        const qtyError = document.getElementById('qty-error');
+        const continueBtn = document.getElementById('continue-btn');
+        const limitErrorMsg = document.getElementById('limit-error-msg');
+
+        // Initialize setup
+        updatePricing();
+
+        function selectSize(w, h, btn) {
+            isCustomMode = false;
+            selectedWidth = w;
+            selectedHeight = h;
+            customInputsDiv.classList.add('hidden');
+            clearError(sizeError);
+            highlightButton(btn);
+            updatePricing();
+        }
+
+        function selectCustom(btn) {
+            isCustomMode = true;
+            customInputsDiv.classList.remove('hidden');
+            highlightButton(btn);
+            
+            customWidthInput.value = '';
+            customHeightInput.value = '';
+            
+            latestCalculatedData = null;
+            renderEmptyTable();
+        }
+
+        function highlightButton(activeBtn) {
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('border-2', 'border-orange-500', 'bg-orange-50/30', 'text-orange-600');
+                btn.classList.add('border', 'border-gray-200', 'text-gray-700', 'hover:border-gray-300');
+            });
+            activeBtn.classList.remove('border', 'border-gray-200', 'text-gray-700', 'hover:border-gray-300');
+            activeBtn.classList.add('border-2', 'border-orange-500', 'bg-orange-50/30', 'text-orange-600');
+        }
+
+        // Monitors user typing inside Custom dimensions
+        [customWidthInput, customHeightInput].forEach(input => {
+            input.addEventListener('input', () => {
+                const wRaw = customWidthInput.value.trim();
+                const hRaw = customHeightInput.value.trim();
+
+                if (!wRaw && !hRaw) {
+                    clearError(sizeError);
+                    renderEmptyTable();
+                    return;
+                }
+
+                const validation = validateDimensions(wRaw, hRaw);
+                if (validation.valid) {
+                    selectedWidth = parseInt(wRaw);
+                    selectedHeight = parseInt(hRaw);
+                    updatePricing();
+                } else {
+                    renderEmptyTable();
+                }
+            });
+        });
+
+        // Soft validation logic
+        function validateDimensions(w, h) {
+            if (w === "" || h === "") {
+                clearError(sizeError);
+                return { valid: false };
+            }
+
+            const wInt = Number(w);
+            const hInt = Number(h);
+            const isInt = (n) => /^[1-9]\d*$/.test(n);
+
+            if (!isInt(w) || !isInt(h)) {
+                showError(sizeError, "Positive integers expected");
+                return { valid: false };
+            }
+            if (wInt < 20 || hInt < 20) {
+                showError(sizeError, "Minimum width/height is 20");
+                return { valid: false };
+            }
+            if (wInt > 900 || hInt > 900) {
+                showError(sizeError, "Maximum width/height is 900");
+                return { valid: false };
+            }
+            
+            clearError(sizeError);
+            return { valid: true };
+        }
+
+        function validateQuantity(val) {
+            if (!val) return { valid: true };
+            const isInt = /^[1-9]\d*$/.test(val);
+            if (!isInt) {
+                return { valid: false, msg: "Positive integers expected" };
+            }
+            const intVal = parseInt(val);
+            if (intVal % 10 !== 0) {
+                return { valid: false, msg: "Multiples of 10 expected" };
+            }
+            return { valid: true, val: intVal };
+        }
+
+        function showError(element, msg) {
+            element.innerText = msg;
+            element.classList.remove('hidden');
+        }
+
+        function clearError(element) {
+            element.innerText = '';
+            element.classList.add('hidden');
+        }
+
+        // Handles user selecting rows inside the HTML table
+        function selectRow(qty, isCustom) {
+            isNinthRowSelected = isCustom;
+            if (!isCustom) {
+                selectedRowQuantity = qty;
+            }
+            updateRowHighlightingAndTotal();
+        }
+
+        // Render clean, blank cells on size resets or validation locks
+        function renderEmptyTable() {
+            document.querySelectorAll('.qty-row').forEach(row => {
+                row.classList.remove('opacity-40');
+                row.querySelector('.text-val-price').classList.remove('line-through');
+                row.querySelector('.text-val-price').innerText = '';
+                row.querySelector('.text-val-discount').innerText = '';
+                row.querySelector('.text-val-each').innerText = '';
+            });
+            finalSumDisplay.innerText = '€0';
+            setButtonState(true);
+        }
+
+        // Dispatches standard calculate commands to backend container
+        async function updatePricing() {
+            if (isCustomMode) {
+                const wRaw = customWidthInput.value.trim();
+                const hRaw = customHeightInput.value.trim();
+                const validation = validateDimensions(wRaw, hRaw);
+                if (!validation.valid) return;
+            }
+
+            const activeUserQty = customQtyValue || 120; 
+
+            const payload = {
+                horiz: selectedWidth,
+                vert: selectedHeight,
+                quantity: activeUserQty
+            };
+
+            try {
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    latestCalculatedData = await response.json();
+                    populateTableValues();
+                }
+            } catch (err) {
+                console.error("Pricing API connection error:", err);
+            }
+        }
+
+        // Injects values from global state and sets visual markers
+        function populateTableValues() {
+            if (!latestCalculatedData) return;
+
+            // 1. Update Fixed Rows (Indices 0 to 7)
+            const fixedRows = document.querySelectorAll('.qty-row:not(#custom-qty-row)');
+            fixedRows.forEach((row, index) => {
+                const rowData = latestCalculatedData.fixed_table[index];
+                if (rowData) {
+                    const priceElement = row.querySelector('.text-val-price');
+                    priceElement.innerText = `€${rowData.total_price}`;
+                    row.querySelector('.text-val-discount').innerText = `${rowData.discount}%`;
+                    row.querySelector('.text-val-each').innerText = `€${rowData.price_per_item.toFixed(2)}`;
+
+                    // Limit check: Apply gray effect if total price > €2000
+                    if (rowData.total_price > 2000) {
+                        row.classList.add('opacity-40');
+                        priceElement.classList.add('line-through');
+                    } else {
+                        row.classList.remove('opacity-40');
+                        priceElement.classList.remove('line-through');
+                    }
+                }
+            });
+
+            // 2. Update Ninth (Custom) Row
+            const customRow = document.getElementById('custom-qty-row');
+            const customInputVal = customQtyInput.value.trim();
+            const qtyValidation = validateQuantity(customInputVal);
+
+            if (qtyValidation.valid && qtyValidation.val) {
+                const cData = latestCalculatedData.custom;
+                const priceElement = customRow.querySelector('.text-val-price');
+                priceElement.innerText = `€${cData.total_price}`;
+                customRow.querySelector('.text-val-discount').innerText = `${cData.discount}%`;
+                customRow.querySelector('.text-val-each').innerText = `€${cData.price_per_item.toFixed(2)}`;
+
+                if (cData.total_price > 2000) {
+                    customRow.classList.add('opacity-40');
+                    priceElement.classList.add('line-through');
+                } else {
+                    customRow.classList.remove('opacity-40');
+                    priceElement.classList.remove('line-through');
+                }
+            } else {
+                customRow.querySelector('.text-val-price').innerText = '';
+                customRow.querySelector('.text-val-discount').innerText = '';
+                customRow.querySelector('.text-val-each').innerText = '';
+                customRow.classList.remove('opacity-40');
+            }
+
+            updateRowHighlightingAndTotal();
+        }
+
+        // Highlights execution path and locks button down dynamically
+        function updateRowHighlightingAndTotal() {
+            let matchedPrice = 0;
+            let currentSelectedExceedsLimit = false;
+
+            // Highlight standard fixed rows
+            document.querySelectorAll('.qty-row:not(#custom-qty-row)').forEach(row => {
+                const qty = parseInt(row.getAttribute('data-qty'));
+                const isSelected = (!isNinthRowSelected && selectedRowQuantity === qty);
+                const hasExceeded = row.classList.contains('opacity-40');
+                
+                if (isSelected) {
+                    row.className = `qty-row cursor-pointer transition-all duration-150 bg-orange-50 font-semibold border-l-4 border-l-orange-500 ${hasExceeded ? 'opacity-40' : ''}`;
+                    row.querySelector('.text-val-price').className = `px-3.5 py-1.5 text-right font-bold text-orange-600 text-val-price ${hasExceeded ? 'line-through' : ''}`;
+                    
+                    if (latestCalculatedData) {
+                        const rowData = latestCalculatedData.fixed_table.find(r => r.quantity === qty);
+                        if (rowData) {
+                            matchedPrice = rowData.total_price;
+                            if (rowData.total_price > 2000) currentSelectedExceedsLimit = true;
+                        }
+                    }
+                } else {
+                    row.className = `qty-row cursor-pointer transition-all duration-150 hover:bg-gray-50/50 ${hasExceeded ? 'opacity-40' : ''}`;
+                    row.querySelector('.text-val-price').className = `px-3.5 py-1.5 text-right font-bold text-gray-900 text-val-price ${hasExceeded ? 'line-through' : ''}`;
+                }
+            });
+
+            // Highlight custom quantity row
+            const customRow = document.getElementById('custom-qty-row');
+            const customInputVal = customQtyInput.value.trim();
+            const qtyValidation = validateQuantity(customInputVal);
+            const customExceeded = customRow.classList.contains('opacity-40');
+
+            if (isNinthRowSelected) {
+                customRow.className = `qty-row transition-all duration-150 bg-orange-50 font-semibold border-l-4 border-l-orange-500 ${customExceeded ? 'opacity-40' : ''}`;
+                
+                // Color switching rules for custom box text: black when typed, gray when empty placeholder
+                if (customInputVal.length > 0) {
+                    customQtyInput.className = "w-20 border border-orange-400 focus:ring-1 focus:ring-orange-400 text-left font-bold outline-none transition cursor-pointer text-gray-900 bg-white rounded px-1.5 py-0.5";
+                } else {
+                    customQtyInput.className = "w-20 border border-orange-400 focus:ring-1 focus:ring-orange-400 text-left font-bold outline-none transition cursor-pointer text-gray-400 bg-white rounded px-1.5 py-0.5";
+                }
+                
+                if (qtyValidation.valid && qtyValidation.val && latestCalculatedData) {
+                    matchedPrice = latestCalculatedData.custom.total_price;
+                    if (latestCalculatedData.custom.total_price > 2000) currentSelectedExceedsLimit = true;
+                } else {
+                    matchedPrice = 0;
+                }
+            } else {
+                customRow.className = `qty-row transition-all duration-150 hover:bg-gray-50/50 ${customExceeded ? 'opacity-40' : ''}`;
+                
+                if (customInputVal.length > 0) {
+                    customQtyInput.className = "w-20 border border-gray-200 text-left font-bold outline-none transition cursor-pointer text-gray-900 bg-white rounded px-1.5 py-0.5";
+                } else {
+                    customQtyInput.className = "w-20 border border-gray-200 text-left font-bold outline-none transition cursor-pointer text-gray-400 bg-white rounded px-1.5 py-0.5";
+                }
+            }
+
+            finalSumDisplay.innerText = `€${matchedPrice}`;
+
+            // Enforce Continue button lock
+            if (currentSelectedExceedsLimit) {
+                setButtonState(false);
+            } else {
+                setButtonState(true);
+            }
+        }
+
+        function setButtonState(enabled) {
+            if (enabled) {
+                continueBtn.disabled = false;
+                continueBtn.className = "w-full py-3.5 bg-[#ff5a00] hover:bg-[#e04f00] active:scale-[0.98] text-white font-extrabold rounded-lg text-sm shadow-sm transition-all duration-150 cursor-pointer";
+                limitErrorMsg.classList.add('hidden');
+            } else {
+                continueBtn.disabled = true;
+                continueBtn.className = "w-full py-3.5 bg-gray-300 text-gray-500 font-extrabold rounded-lg text-sm shadow-none cursor-not-allowed transition-all duration-150";
+                limitErrorMsg.classList.remove('hidden');
+            }
+        }
+
+        // Custom row input typing listener
+        customQtyInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            const check = validateQuantity(val);
+
+            isNinthRowSelected = true;
+
+            if (!check.valid) {
+                showError(qtyError, check.msg);
+                const customRow = document.getElementById('custom-qty-row');
+                customRow.querySelector('.text-val-price').innerText = '';
+                customRow.querySelector('.text-val-discount').innerText = '';
+                customRow.querySelector('.text-val-each').innerText = '';
+                updateRowHighlightingAndTotal();
+            } else {
+                clearError(qtyError);
+                customQtyValue = check.val || null;
+                updatePricing();
+            }
+        });
+
+        function goToUploadPage() {
+            window.location.href = '/upload.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Artwork | Sticker Mule Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        /* Changed from background.png to background2.png */
+        body {
+            background-image: url('./background2.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #f9fafb;
+        }
+        @keyframes progress-bar-stripes {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+        .progress-bar-animated {
+            background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-6 flex justify-center items-start max-w-7xl mx-auto">
+
+    <div class="w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg p-8 mt-10 space-y-6 text-center">
+        
+        <div class="space-y-1">
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Upload your image</h1>
+            <p class="text-gray-500 text-sm font-medium">Almost there. Your stickers start shaping!</p>
+        </div>
+
+        <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/gif" class="hidden" onchange="handleFileSelection(event)">
+
+        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl bg-gray-50/50 p-12 transition-all duration-200 hover:border-orange-400 hover:bg-gray-50 flex flex-col items-center justify-center space-y-4"
+             ondragover="dragOverHandler(event)" ondragleave="dragLeaveHandler(event)" ondrop="dropHandler(event)">
+            
+            <button onclick="triggerFileSelect()" class="px-8 py-3 bg-[#0066eb] hover:bg-[#0052bd] text-white font-extrabold rounded-lg text-sm shadow-sm transition active:scale-[0.98]">
+                Choose file...
+            </button>
+            
+            <span class="text-xs text-gray-400 font-semibold">or drag and drop</span>
+            
+            <span class="text-[11px] text-gray-400">Accepts PNG, JPG, JPEG, and GIF up to 5MB</span>
+            <div id="upload-error" class="text-xs text-red-500 font-bold hidden"></div>
+        </div>
+
+        <div id="upload-details-container" class="hidden text-left space-y-5">
+            
+            <div class="border border-gray-200 rounded-xl p-4 bg-white flex items-center gap-4 relative">
+                
+                <div class="w-14 h-14 bg-gray-100 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    <img id="thumbnail-preview" class="w-full h-full object-cover hidden" alt="Thumbnail">
+                    <span id="thumbnail-fallback" class="text-gray-400 text-xs font-bold">IMG</span>
+                </div>
+
+                <div class="flex-1 min-w-0 space-y-2">
+                    <div id="file-name-display" class="text-xs font-bold text-gray-800 truncate">file_name.png</div>
+                    
+                    <div id="progress-bar-wrapper" class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="progress-bar-fill" class="bg-[#0066eb] h-full rounded-full progress-bar-animated transition-all duration-100" style="width: 0%"></div>
+                    </div>
+
+                    <button id="replace-image-btn" onclick="triggerFileSelect()" class="text-xs font-bold text-[#0066eb] hover:underline hidden">
+                        Replace image
+                    </button>
+                </div>
+
+                <div class="flex-shrink-0 flex items-center justify-center pl-2">
+                    <button id="cancel-upload-btn" onclick="cancelUpload()" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <button id="delete-file-btn" onclick="cancelUpload()" class="text-gray-400 hover:text-red-500 transition hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-xs font-extrabold text-gray-900 block">Add instructions <span class="text-gray-400 font-normal italic">Optional</span></label>
+                <textarea id="instructions-input" placeholder="Let us know if you have any instructions for your order." 
+                          class="w-full border border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg p-3 text-xs outline-none transition text-gray-900 font-medium h-24 resize-y"></textarea>
+            </div>
+
+            <div>
+                <button id="continue-btn" onclick="onContinue()" class="w-full sm:w-auto px-10 py-3.5 bg-gray-300 text-gray-500 font-extrabold rounded-lg text-sm transition cursor-not-allowed" disabled>
+                    Continue
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let currentXHR = null;
+
+        function triggerFileSelect() {
+            document.getElementById('file-input').click();
+        }
+
+        function dragOverHandler(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.add('border-orange-400', 'bg-gray-50');
+        }
+
+        function dragLeaveHandler(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('border-orange-400', 'bg-gray-50');
+        }
+
+        function dropHandler(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('border-orange-400', 'bg-gray-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelection(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            const errorDiv = document.getElementById('upload-error');
+            errorDiv.classList.add('hidden');
+
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                errorDiv.innerText = "⚠ Maximum file size is 5MB.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('drop-zone').classList.add('hidden');
+            document.getElementById('upload-details-container').classList.remove('hidden');
+            document.getElementById('file-name-display').innerText = file.name;
+
+            const previewImage = document.getElementById('thumbnail-preview');
+            const fallbackText = document.getElementById('thumbnail-fallback');
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                    fallbackText.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.classList.add('hidden');
+                fallbackText.classList.remove('hidden');
+            }
+
+            startUpload(file);
+        }
+
+        function startUpload(file) {
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const progressWrapper = document.getElementById('progress-bar-wrapper');
+            
+            progressBarFill.style.width = '0%';
+            progressWrapper.classList.remove('hidden');
+            document.getElementById('cancel-upload-btn').classList.remove('hidden');
+            document.getElementById('replace-image-btn').classList.add('hidden');
+            document.getElementById('delete-file-btn').classList.add('hidden');
+
+            setContinueBtnEnabled(false);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            currentXHR = new XMLHttpRequest();
+            currentXHR.open('POST', '/api/upload', true);
+
+            currentXHR.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBarFill.style.width = percentComplete + '%';
+                }
+            };
+
+            currentXHR.onload = function() {
+                if (currentXHR.status === 200) {
+                    progressBarFill.style.width = '100%';
+                    setTimeout(() => {
+                        onUploadComplete();
+                    }, 400); 
+                } else {
+                    console.error("Upload failed with status code:", currentXHR.status, currentXHR.responseText);
+                    alert("Upload failed (" + currentXHR.status + "). Please check your server config.");
+                    cancelUpload();
+                }
+            };
+
+            currentXHR.onerror = function() {
+                console.error("Network error on upload");
+                alert("An error occurred during transfer.");
+                cancelUpload();
+            };
+
+            currentXHR.send(formData);
+        }
+
+        function onUploadComplete() {
+            document.getElementById('progress-bar-wrapper').classList.add('hidden');
+            document.getElementById('cancel-upload-btn').classList.add('hidden');
+            
+            document.getElementById('replace-image-btn').classList.remove('hidden');
+            document.getElementById('delete-file-btn').classList.remove('hidden');
+
+            setContinueBtnEnabled(true);
+        }
+
+        function setContinueBtnEnabled(enabled) {
+            const btn = document.getElementById('continue-btn');
+            if (enabled) {
+                btn.disabled = false;
+                btn.className = "w-full sm:w-auto px-10 py-3.5 bg-[#ff5a00] hover:bg-[#e04f00] active:scale-[0.98] text-white font-extrabold rounded-lg text-sm shadow-sm transition-all duration-150 cursor-pointer";
+            } else {
+                btn.disabled = true;
+                btn.className = "w-full sm:w-auto px-10 py-3.5 bg-gray-300 text-gray-500 font-extrabold rounded-lg text-sm shadow-none cursor-not-allowed transition-all duration-150";
+            }
+        }
+
+        function cancelUpload() {
+            if (currentXHR) {
+                currentXHR.abort();
+                currentXHR = null;
+            }
+
+            document.getElementById('file-input').value = "";
+            document.getElementById('thumbnail-preview').src = "";
+
+            document.getElementById('upload-details-container').classList.add('hidden');
+            document.getElementById('drop-zone').classList.remove('hidden');
+        }
+
+        function onContinue() {
+            console.log("Artwork details submitted: ", {
+                instructions: document.getElementById('instructions-input').value
+            });
+        }
+    </script>
+</body>
+</html>
