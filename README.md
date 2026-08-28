@@ -1,4 +1,4 @@
-# Introduction
+## Introduction
 
 A dynamic sticker price calculator for both **fixed** and **custom quantities**.
 
@@ -14,7 +14,7 @@ The actual pricing algorithm has intentionally been excluded from the repository
 
 A demonstration of the calculator using the **actual pricing function** is available on YouTube:
 
-[▶ Watch the demo on YouTube](YOUR_YOUTUBE_LINK)
+[![Sticker Price Calculator Demo](https://img.youtube.com/vi/Yugdgtk8U_U/maxresdefault.jpg)](https://www.youtube.com/watch?v=Yugdgtk8U_U)
 
 ## Technologies
 
@@ -31,13 +31,13 @@ The frontend was intentionally kept minimal and was generated with LLM assistanc
 
 Clone the repository (or download it) and navigate to the project directory:
 
-```bash id="7r1ezr"
+```bash
 cd /path/to/project
 ```
 
 Build and start the application:
 
-```bash id="ak8y7k"
+```bash
 docker compose up --build
 ```
 
